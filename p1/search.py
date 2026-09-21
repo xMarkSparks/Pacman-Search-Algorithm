@@ -154,8 +154,34 @@ def depthFirstSearch(problem: 'SearchProblem') -> List[str]:
         >>> print(f"Is start a goal? {problem.isGoalState(problem.getStartState())}")
         >>> print(f"Start's successors: {problem.getSuccessors(problem.getStartState())}")
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    frontier = Stack()
+    visited = set()
+
+
+    StartState = problem.getStartState()
+    frontier.push((StartState, []))  # Push a tuple of (state, path)
+
+    while not frontier.isEmpty():
+        state, path = frontier.pop()
+
+        if state in visited:
+            continue
+
+        if problem.isGoalState(state):
+            return path
+
+        visited.add(state)
+
+        for nextState, action, stepCost in problem.getSuccessors(state):
+            if nextState not in visited:
+                newPath = path + [action]
+                frontier.push((nextState, newPath))
+
+    # Returns an empty list meaning the algorithm didn't find a path 
+    return []
+
+    
 
 
 def breadthFirstSearch(problem: 'SearchProblem') -> List[str]:
@@ -171,8 +197,30 @@ def breadthFirstSearch(problem: 'SearchProblem') -> List[str]:
         List[str]: A sequence of actions that reaches the goal state,
                   or empty list if no solution exists
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    frontier = Queue()
+    visited = set()
+
+    StartState = problem.getStartState()
+    frontier.push((StartState, [])) # Push a tuple of (state, path)
+
+    while not frontier.isEmpty():
+        state, path = frontier.pop()
+
+        if state in visited:
+            continue
+
+        if problem.isGoalState(state):
+            return path
+
+        visited.add(state)
+
+        for nextState, action, stepCost in problem.getSuccessors(state):
+            if nextState not in visited:
+                newPath = path + [action]
+                frontier.push((nextState, newPath))
+
+    # Returns an empty list meaning the algorithm didn't find a path
+    return []
 
 
 def uniformCostSearch(problem: 'SearchProblem') -> List[str]:
