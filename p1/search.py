@@ -187,7 +187,8 @@ def depthFirstSearch(problem: 'SearchProblem') -> List[str]:
 def breadthFirstSearch(problem: 'SearchProblem') -> List[str]:
     """Search the shallowest nodes in the search tree first using BFS.
     
-    Implements a graph search version of breadth-first search that avoids
+    Implements a graph sea
+    rch version of breadth-first search that avoids
     expanding previously visited states.
     
     Args:
@@ -236,8 +237,33 @@ def uniformCostSearch(problem: 'SearchProblem') -> List[str]:
         List[str]: A sequence of actions that reaches the goal state with minimum
                   total cost, or empty list if no solution exists
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    frontier = PriorityQueue()
+
+    StartState = problem.getStartState()
+    frontier.push((StartState, [], 0), 0) # Push a tuple of (state, path, step cost) & priority
+    bestCost = {StartState: 0}
+
+    while not frontier.isEmpty():
+        state, path, totalCost = frontier.pop()
+
+        if totalCost > bestCost[state]:
+            continue
+
+        if problem.isGoalState(state):
+            return path
+
+        for nextState, action, stepCost in problem.getSuccessors(state):
+
+            newCost = totalCost + stepCost
+
+            if nextState not in bestCost or newCost < bestCost[nextState]:
+                bestCost[nextState] = newCost
+                newPath = path + [action]
+
+                frontier.push((nextState, newPath, newCost), newCost)
+
+    # Returns an empty list meaning the algorith didn't find a path
+    return []
 
 def nullHeuristic(state: Any, problem: Optional['SearchProblem'] = None) -> float:
     """Return a trivial heuristic estimate of 0 for any state.
@@ -270,8 +296,35 @@ def aStarSearch(problem: 'SearchProblem', heuristic: Callable = nullHeuristic) -
         List[str]: A sequence of actions that reaches the goal state with optimal cost,
                   or empty list if no solution exists
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    frontier = PriorityQueue()
+
+    StartState = problem.getStartState()
+    frontier.push((StartState, [], 0), 0) # Push a tuple of (state, path, step cost) & priority
+    bestCost = {StartState: 0}
+
+    while not frontier.isEmpty():
+        state, path, totalCost = frontier.pop()
+
+        if totalCost > bestCost[state]:
+            continue
+
+        if problem.isGoalState(state):
+            return path
+
+        for nextState, action, stepCost in problem.getSuccessors(state):
+
+            newCost = totalCost + stepCost 
+
+            if nextState not in bestCost or newCost < bestCost[nextState]:
+                bestCost[nextState] = newCost
+                newPath = path + [action]
+
+                priority = newCost + heuristic(nextState, problem)
+                
+                frontier.push((nextState, newPath, newCost), priority)
+
+    # Returns an empty list meaning the algorith didn't find a path
+    return []
 
 
 # Abbreviations - Common search algorithm aliases with type hints
