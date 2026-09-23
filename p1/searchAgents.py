@@ -67,6 +67,7 @@ from game import Actions
 import util
 import time
 import search
+import itertools
 from typing import List, Tuple, Any, Optional, Callable, Dict
 
 
@@ -527,11 +528,35 @@ def cornersHeuristic(state: Tuple[Tuple[int, int], List[Tuple[int, int]]],
     """
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
-    
-    "*** YOUR CODE HERE ***"
-        
-    return 0 # Default to trivial solution
+    position, visitedCorners = state
+    currentX, currentY = position
+    unvisitedCorners = []
 
+    for corner in corners:
+        if corner not in visitedCorners:
+            unvisitedCorners.append(corner)
+
+    if not unvisitedCorners:
+            return 0
+
+    orders = list(itertools.permutations(unvisitedCorners))
+    lowestCost = float("inf")
+
+    for order in orders:
+        currentX, currentY = position
+        cost = 0
+
+        for corner in order:
+            distance = abs(currentX - corner[0]) + abs(currentY - corner[1])
+
+            cost += distance
+
+            currentX, currentY = corner
+
+        if cost < lowestCost:
+            lowestCost = cost
+    
+    return lowestCost
 
 class AStarCornersAgent(SearchAgent):
     """A SearchAgent that uses A* search with the corners heuristic.
@@ -676,9 +701,41 @@ def foodHeuristic(state: Tuple[Tuple[int, int], 'Grid'], problem: 'FoodSearchPro
         The problem.heuristicInfo dict can be used to cache values between calls.
     """
     position, food_grid = state
+    foodPositions = food_grid.asList()
+
+    if not foodPositions:
+        return 0
+
+    return max(
+        mazeDistance(position, foodPos, problem.startingGameState)
+        for foodPos in foodPositions
+    )
+
+    """ 
+    This is an AI implemented version that uses caching which I am unfamiliar with 
+    but mentioned in the documenation of this function 
+
+    position, foodGrid = state
+    foodPositions = foodGrid.asList()
+
+    if not foodPositions:
+        return 0
+
+    distCache = problem.heuristicInfo.setdefault('distCache', {})
+
+    def cachedDist(a, b):
+        key = (a, b) if a <= b else (b, a)
+        if key not in distCache:
+            distCache[key] = mazeDistance(a, b, problem.startingGameState)
+        return distCache[key]
+
+    return max(cachedDist(position, f) for f in foodPositions)
+
+    """
+
     
-    "*** YOUR CODE HERE ***"                                                                         
-    return 0
+                                                                        
+
 
 
 class ClosestDotSearchAgent(SearchAgent):
@@ -733,9 +790,9 @@ class ClosestDotSearchAgent(SearchAgent):
         food = gameState.getFood()
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
+
+        return search.uniformCostSearch(problem)        
         
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
 
 
 class AnyFoodSearchProblem(PositionSearchProblem):
@@ -780,8 +837,8 @@ class AnyFoodSearchProblem(PositionSearchProblem):
             bool: True if position contains food, False otherwise
         """
         x, y = state
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        return self.food[x][y]
 
 
 def mazeDistance(point1: Tuple[int, int], point2: Tuple[int, int], 
